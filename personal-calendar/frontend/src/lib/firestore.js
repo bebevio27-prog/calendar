@@ -52,11 +52,11 @@ export async function deleteEvent(eventId) {
   return deleteDoc(doc(db, 'events', eventId))
 }
 
-export async function getEvents(userId) {
+export async function getEvents() {
+  // Recupera TUTTI gli eventi (calendario condiviso)
   const snap = await getDocs(
     query(
       collection(db, 'events'),
-      where('userId', '==', userId),
       orderBy('name')
     )
   )
@@ -82,9 +82,10 @@ export async function getEvent(eventId) {
  * }
  */
 
-export async function getEventOverrides(userId) {
+export async function getEventOverrides() {
+  // Recupera TUTTI gli override (calendario condiviso)
   const snap = await getDocs(
-    query(collection(db, 'eventOverrides'), where('userId', '==', userId))
+    query(collection(db, 'eventOverrides'))
   )
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }))
 }
@@ -109,6 +110,11 @@ export async function deleteEventOverride(overrideId) {
 }
 
 // ─── Users ───────────────────────────────────────────────
+
+export async function getAllUsers() {
+  const snap = await getDocs(collection(db, 'users'))
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+}
 
 export async function getUserProfile(userId) {
   const snap = await getDoc(doc(db, 'users', userId))

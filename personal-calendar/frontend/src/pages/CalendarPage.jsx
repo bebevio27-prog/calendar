@@ -20,7 +20,7 @@ import { cn } from '../lib/utils'
 
 export default function CalendarPage() {
   const { currentUser } = useAuth()
-  const { events, overrides, loaded, addEvent, editEvent, removeEvent, loadData } = useAppStore()
+  const { events, overrides, users, loaded, addEvent, editEvent, removeEvent, loadData } = useAppStore()
   
   const [weekOffset, setWeekOffset] = useState(0)
   const [selectedEvent, setSelectedEvent] = useState(null)
@@ -29,7 +29,7 @@ export default function CalendarPage() {
 
   useEffect(() => {
     if (currentUser && !loaded) {
-      loadData(currentUser.uid)
+      loadData()
     }
   }, [currentUser, loaded, loadData])
 
@@ -227,6 +227,8 @@ export default function CalendarPage() {
       {/* Event detail modal */}
       <EventDetailModal
         event={selectedEvent}
+        users={users}
+        currentUserId={currentUser?.uid}
         onClose={() => setSelectedEvent(null)}
         onEdit={handleEdit}
         onDelete={handleDelete}
@@ -253,8 +255,14 @@ export default function CalendarPage() {
 }
 
 // Event Detail Modal
-function EventDetailModal({ event, onClose, onEdit, onDelete }) {
+function EventDetailModal({ event, users, currentUserId, onClose, onEdit, onDelete }) {
   if (!event) return null
+
+  // Trova l'evento originale per ottenere userId
+  const originalEvent = event.originalEvent || event
+  const creatorId = originalEvent.userId
+  const creator = users.find(u => u.id === creatorId)
+  const isOwner = creatorId === currentUserId
 
   return (
     <Modal open={!!event} onClose={onClose} title={event.eventName}>
@@ -272,6 +280,15 @@ function EventDetailModal({ event, onClose, onEdit, onDelete }) {
           </div>
         </div>
 
+        {creator && (
+          <div>
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+              Creato da
+            </p>
+            <p className="text-sm text-gray-700">{creator.name || creator.email}</p>
+          </div>
+        )}
+
         {event.description && (
           <div>
             <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
@@ -281,27 +298,35 @@ function EventDetailModal({ event, onClose, onEdit, onDelete }) {
           </div>
         )}
 
-        <div className="flex gap-2 pt-2">
-          <Button
-            variant="secondary"
-            className="flex-1 flex items-center justify-center gap-2"
-            onClick={() => {
-              onEdit(event)
-              onClose()
-            }}
-          >
-            <Edit size={16} />
-            Modifica
-          </Button>
-          <Button
-            variant="danger"
-            className="flex-1 flex items-center justify-center gap-2"
-            onClick={() => onDelete(event.eventId)}
-          >
-            <Trash2 size={16} />
-            Elimina
-          </Button>
-        </div>
+        {isOwner && (
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="secondary"
+              className="flex-1 flex items-center justify-center gap-2"
+              onClick={() => {
+                onEdit(event)
+                onClose()
+              }}
+            >
+              <Edit size={16} />
+              Modifica
+            </Button>
+            <Button
+              variant="danger"
+              className="flex-1 flex items-center justify-center gap-2"
+              onClick={() => onDelete(event.eventId)}
+            >
+              <Trash2 size={16} />
+              Elimina
+            </Button>
+          </div>
+        )}
+
+        {!isOwner && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+            Solo il creatore può modificare o eliminare questo evento.
+          </div>
+        )}
       </div>
     </Modal>
   )

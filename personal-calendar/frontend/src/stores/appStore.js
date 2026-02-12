@@ -7,22 +7,25 @@ import {
   getEventOverrides,
   setEventOverride,
   deleteEventOverride,
+  getAllUsers,
 } from '../lib/firestore'
 
 export const useAppStore = create((set, get) => ({
   events: [],
   overrides: [],
+  users: [],
   loaded: false,
 
-  // Carica tutti i dati dell'utente
-  async loadData(userId) {
+  // Carica tutti i dati (calendario condiviso)
+  async loadData() {
     try {
-      const [events, overrides] = await Promise.all([
-        getEvents(userId),
-        getEventOverrides(userId),
+      const [events, overrides, users] = await Promise.all([
+        getEvents(),
+        getEventOverrides(),
+        getAllUsers(),
       ])
       
-      set({ events, overrides, loaded: true })
+      set({ events, overrides, users, loaded: true })
     } catch (error) {
       console.error('Error loading data:', error)
       set({ loaded: true })
@@ -85,6 +88,6 @@ export const useAppStore = create((set, get) => ({
 
   // Reset (per logout)
   reset() {
-    set({ events: [], overrides: [], loaded: false })
+    set({ events: [], overrides: [], users: [], loaded: false })
   },
 }))

@@ -53,6 +53,7 @@ export function generateEvents(events, overrides, weekStart, weekEnd) {
             startTime: override?.newStartTime || schedule.startTime,
             endTime: override?.newEndTime || schedule.endTime,
             isRecurring: true,
+            originalEvent: event, // Mantieni riferimento all'evento originale
           })
         }
       }
@@ -72,6 +73,7 @@ export function generateEvents(events, overrides, weekStart, weekEnd) {
           startTime: event.startTime,
           endTime: event.endTime,
           isRecurring: false,
+          originalEvent: event, // Mantieni riferimento all'evento originale
         })
       }
     }

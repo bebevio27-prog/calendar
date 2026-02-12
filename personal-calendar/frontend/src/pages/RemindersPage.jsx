@@ -15,7 +15,7 @@ export default function RemindersPage() {
 
   useEffect(() => {
     if (currentUser && !loaded) {
-      loadData(currentUser.uid)
+      loadData()
     }
   }, [currentUser, loaded, loadData])
 
