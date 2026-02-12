@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter as BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Layout from './components/Layout'
 import Login from './pages/Login'
@@ -17,7 +17,7 @@ function PrivateRoute({ children }) {
     )
   }
   
-  return currentUser ? children : <Navigate to="/login" />
+  return currentUser ? children : <Navigate to="/login" replace />
 }
 
 function PublicRoute({ children }) {
@@ -31,7 +31,7 @@ function PublicRoute({ children }) {
     )
   }
   
-  return currentUser ? <Navigate to="/" /> : children
+  return currentUser ? <Navigate to="/" replace /> : children
 }
 
 function App() {
